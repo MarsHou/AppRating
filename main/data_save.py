@@ -115,3 +115,5 @@ class DataSave(object):
         file_out.write(r"""</body>
         </html>""")
         file_out.close()
+
+        return file_name
