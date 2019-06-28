@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import time
 
 STYLE = r"""<style type="text/css">
@@ -29,9 +30,9 @@ table.hovertable td {
 
 
 class DataSave(object):
-    def save_data(self, datas):
-        file_name = 'give_rating_%s.html' % time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
-        file_out = open(file_name, 'w', encoding='utf-8')
+    def save_data(self, datas, sort_by):
+        file_name = 'give_rating_%s_%s.html' % (sort_by, time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime()))
+        file_out = open(file_name, 'w')
         file_out.write(r'''<meta http-equiv=Content-Type content="text/html;charset=utf-8">
         <html>
         %s
@@ -47,73 +48,46 @@ class DataSave(object):
         for data in datas:
             score = int(data['im:rating']['label'])
             if score == 1:
-                data_rating1 += r"""<tr  onmouseover="this.style.backgroundColor='#ffff66';" onmouseout="this.style.backgroundColor='#d4e3e5';">
-                <td>%d</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>
-                </tr>""" % (
-                    no, data['author']['name']['label'], data['title']['label'], data['content']['label'],
-                    data['im:version']['label'], data['im:rating']['label'])
+                data_rating1 += self.get_tr_content(data, no)
             elif score == 5:
-                data_rating5 += r"""<tr  onmouseover="this.style.backgroundColor='#ffff66';" onmouseout="this.style.backgroundColor='#d4e3e5';">
-                <td>%d</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>
-                </tr>""" % (
-                    no, data['author']['name']['label'], data['title']['label'], data['content']['label'],
-                    data['im:version']['label'], data['im:rating']['label'])
+                data_rating5 += self.get_tr_content(data, no)
             elif score == 2:
-                data_rating2 += r"""<tr  onmouseover="this.style.backgroundColor='#ffff66';" onmouseout="this.style.backgroundColor='#d4e3e5';">
-                <td>%d</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>
-                </tr>""" % (
-                    no, data['author']['name']['label'], data['title']['label'], data['content']['label'],
-                    data['im:version']['label'], data['im:rating']['label'])
+                data_rating2 += self.get_tr_content(data, no)
             elif score == 3:
-                data_rating3 += r"""<tr  onmouseover="this.style.backgroundColor='#ffff66';" onmouseout="this.style.backgroundColor='#d4e3e5';">
-                <td>%d</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>
-                </tr>""" % (
-                    no, data['author']['name']['label'], data['title']['label'], data['content']['label'],
-                    data['im:version']['label'], data['im:rating']['label'])
+                data_rating3 += self.get_tr_content(data, no)
             else:
-                data_rating4 += r"""<tr  onmouseover="this.style.backgroundColor='#ffff66';" onmouseout="this.style.backgroundColor='#d4e3e5';">
-                <td>%d</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>
-                </tr>""" % (
-                    no, data['author']['name']['label'], data['title']['label'], data['content']['label'],
-                    data['im:version']['label'], data['im:rating']['label'])
+                data_rating4 += self.get_tr_content(data, no)
             totalScore += score
             no += 1
 
-        file_out.write(r'''<h1>Avg Score: %.1f</h1>''' % (totalScore / no))
+        file_out.write(r'''<h1>Avg Score: %.1f Sort by %s</h1>''' % ((totalScore / no), sort_by))
         if len(data_rating1) != 0:
-            file_out.write(r"""<h4>Bad review</h4>
-            <table  class='hovertable'>
-            <tr><th>NO</th><th>AUTHOR</th><th>TITLE</th><th>CONTENT</th><th>VERSION</th><th>RATING</th></tr>
-            %s
-            </table><br>""" % data_rating1)
-
+            file_out.write(self.get_table_content('Bad review', data_rating1))
         if len(data_rating2) != 0:
-            file_out.write(r"""<h4>Two stars</h4>
-                    <table  class='hovertable'>
-                    <tr><th>NO</th><th>AUTHOR</th><th>TITLE</th><th>CONTENT</th><th>VERSION</th><th>RATING</th></tr>
-                    %s
-                    </table><br>""" % data_rating2)
+            file_out.write(self.get_table_content('Two stars', data_rating2))
         if len(data_rating3) != 0:
-            file_out.write(r"""<h4>Three Star</h4>
-                    <table  class='hovertable'>
-                    <tr><th>NO</th><th>AUTHOR</th><th>TITLE</th><th>CONTENT</th><th>VERSION</th><th>RATING</th></tr>
-                    %s
-                    </table><br>""" % data_rating3)
+            file_out.write(self.get_table_content('Three Star', data_rating3))
         if len(data_rating4) != 0:
-            file_out.write(r"""<h4>Four stars</h4>
-                    <table  class='hovertable'>
-                    <tr><th>NO</th><th>AUTHOR</th><th>TITLE</th><th>CONTENT</th><th>VERSION</th><th>RATING</th></tr>
-                    %s
-                    </table><br>""" % data_rating4)
+            file_out.write(self.get_table_content('Four stars', data_rating4))
         if len(data_rating5) != 0:
-            file_out.write(r"""<h4>Praise</h4>
-                    <table  class='hovertable'>
-                    <tr><th>NO</th><th>AUTHOR</th><th>TITLE</th><th>CONTENT</th><th>VERSION</th><th>RATING</th></tr>
-                    %s
-                    </table><br>""" % data_rating5)
+            file_out.write(self.get_table_content('Praise', data_rating5))
 
         file_out.write(r"""</body>
         </html>""")
         file_out.close()
 
         return file_name
+
+    def get_table_content(self, rating, data_rating):
+        return unicode(r"""<h4>%s</h4>
+            <table  class='hovertable'>
+            <tr><th>NO</th><th>AUTHOR</th><th>TITLE</th><th>CONTENT</th><th>VERSION</th><th>RATING</th></tr>
+            %s
+            </table><br>""" % (rating, data_rating)).encode('utf-8')
+
+    def get_tr_content(self, data, no):
+        return r"""<tr  onmouseover="this.style.backgroundColor='#ffff66';" onmouseout="this.style.backgroundColor='#d4e3e5';">
+                <td>%d</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>
+                </tr>""" % (
+            no, data['author']['name']['label'], data['title']['label'], data['content']['label'],
+            data['im:version']['label'], data['im:rating']['label'])

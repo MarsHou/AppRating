@@ -29,10 +29,16 @@ class RatingMain(object):
         # rating_url = RATING_URL % APP_ID
         # rating_data = self.download.download_html_data(rating_url)
         # print(rating_data)
+        print('Most helpful:')
         data = self.__start(1)
         self.show_process.close()
-        file = self.save.save_data(data)
-        # self.send.send_email(self.sort_by, file)
+        self.save.save_data(data, self.sort_by)
+        # get data by most recent
+        self.sort_by = SortBy.MOST_RECENT
+        print('Most recent:')
+        data = self.__start(1)
+        self.show_process.close()
+        self.save.save_data(data, self.sort_by)
 
     def __start(self, page):
         url = URL % (page, APP_ID, self.sort_by)
